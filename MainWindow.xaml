@@ -66,7 +66,13 @@
                 <Button Grid.Column="1" x:Name="btnLoad" Command="{Binding Export}">Экспортировать</Button>
             </Grid>
         </Grid>
-        <lvc:CartesianChart x:Name="chart" Grid.Column="1" Series="{Binding Series}">
+        <lvc:CartesianChart x:Name="chart" Grid.Column="1" Series="{Binding Series}" Margin="10 10 10 10">
+            <lvc:CartesianChart.AxisY>
+                <lvc:Axis Title="Шаги"></lvc:Axis>
+            </lvc:CartesianChart.AxisY>
+            <lvc:CartesianChart.AxisX>
+                <lvc:Axis Title="Дни"></lvc:Axis>
+            </lvc:CartesianChart.AxisX>
         </lvc:CartesianChart>
     </Grid>
 </Window>

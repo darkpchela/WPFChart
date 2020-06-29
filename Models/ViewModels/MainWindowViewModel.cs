@@ -17,12 +17,13 @@ using System.Globalization;
 using System.Windows.Data;
 using Chart.DataClasses;
 using Chart.Models.ViewModels;
+using LiveCharts.Configurations;
 
 namespace Chart.Models
 {
     class MainWindowViewModel : INotifyPropertyChanged
     {
-        public List<string> ExportFormats { get; } =new List<string> {"json", "xml", "csv" };
+        public List<string> ExportFormats { get; } = new List<string> { "json", "xml", "csv" };
 
         private DatasModel datasModel;
         private ChartModel chartModel;
@@ -45,8 +46,8 @@ namespace Chart.Models
         }
         public string TextBoxPath
         {
-            get { return _TextBoxPath??datasModel.CurrentFolderPath; }
-            set  
+            get { return _TextBoxPath ?? datasModel.CurrentFolderPath; }
+            set
             {
                 _TextBoxPath = value;
                 OnPropertyChanged("TextBoxPath");
@@ -63,14 +64,7 @@ namespace Chart.Models
             {
                 _SelectedStatistic = value;
                 SendDataToChartModel();
-                Series = new SeriesCollection
-                    {
-                        new LineSeries
-                        {
-                            Values = chartModel.Points,
-                            Fill = Brushes.Transparent
-                        }
-                    };
+                Plot();
                 CompareStatics();
                 OnPropertyChanged("SelectedStatistic");
             }
@@ -182,6 +176,42 @@ namespace Chart.Models
                 else
                     stat.Status = "normal";
             }
+        }
+        private void Plot()
+        {
+            int maxPoint = (int)chartModel.Points.OrderBy(p => p.Y).Last().Y;
+            int minPoint = (int)chartModel.Points.OrderBy(p => p.Y).First().Y;
+
+            CartesianMapper<ObservablePoint> mapper = Mappers.Xy<ObservablePoint>()
+           .Y(item => item.Y)
+           .Fill((item) =>
+           {
+               if (item.Y == maxPoint)
+                   return Brushes.Green;
+               if (item.Y == minPoint)
+                   return Brushes.Red;
+               return null;
+           })
+           .Stroke((item) =>
+           {
+               if (item.Y == maxPoint)
+                   return Brushes.Green;
+               if (item.Y == minPoint)
+                   return Brushes.Red;
+               return null;
+           });
+
+            Series = new SeriesCollection
+                {
+                        new LineSeries
+                        {
+                            Values = chartModel.Points,
+                            Configuration = mapper,
+                            Fill = Brushes.Transparent,
+                            PointGeometrySize=15
+                        }
+
+                };
         }
     }
 }
