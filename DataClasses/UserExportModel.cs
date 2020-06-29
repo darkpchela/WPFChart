@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chart.Models
+namespace Chart.DataClasses
 {
     [Serializable]
     class UserExportModel
     {
-        UserStatisticModel userStatistic;
+        UserStatistiс userStatistic;
         UserData[] userDatas;
-        public UserExportModel(UserStatisticModel userStatistic, IEnumerable<UserData> userDatas)
+        public UserExportModel(UserStatistiс userStatistic, IEnumerable<UserData> userDatas)
         {
             this.userStatistic = userStatistic;
             this.userDatas = userDatas.ToArray();

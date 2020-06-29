@@ -15,17 +15,20 @@ using Chart.Commands;
 using System.IO;
 using System.Globalization;
 using System.Windows.Data;
-using Chart.Services;
+using Chart.DataClasses;
 
 namespace Chart.Models
 {
     class MainWindowViewModel : INotifyPropertyChanged
     {
-        private Chart chart = new Chart();
-        private DataContainer dataContainer;
-        private List<UserStatisticModel> _userStatistics = new List<UserStatisticModel>();
+        public List<string> ExportFormats { get; } =new List<string> {"json", "xml", "csv" };
+        private DatasModel datasModel = new DatasModel();
+        private ChartModel _chartModel = new ChartModel();
+        private List<UserStatistiс> _userStatistics = new List<UserStatistiс>();
         private SeriesCollection _series;
-        private UserStatisticModel _SelectedStatistic;
+        private UserStatistiс _SelectedStatistic;
+
+
         private string _SelectedFormat;
         public string SelectedFormat
         {
@@ -36,42 +39,22 @@ namespace Chart.Models
                 OnPropertyChanged("SelectedFormat");
             }
         }
-        public List<string> _ExportFormats =new List<string> {"json", "xml", "csv" };
-        public List<string> ExportFormats
-        {
-            get { return _ExportFormats; }
-        }
+        //public List<string> ExportFormats
+        //{
+        //    get { return _ExportFormats; }
+        //}
         private string _TextBoxPath;
         public string TextBoxPath
         {
-            get { return _TextBoxPath??DataFolder; }
+            get { return _TextBoxPath??datasModel.CurrentFolderPath; }
             set  
             {
                 _TextBoxPath = value;
                 OnPropertyChanged("TextBoxPath");
             }
         }
-        private string _DataFolder;
-        public string DataFolder
-        {
-            get { return _DataFolder ?? Path.Combine(Directory.GetCurrentDirectory(), "Data"); }
-            set
-            {
-                dataContainer = new DataContainer(value);
-                if (dataContainer.AllDatas.Any())
-                { 
-                    _DataFolder = value;
-                    LoadStatistics();
-                    OnPropertyChanged("DataFolder");
-                }
-                else
-                {
-                    TextBoxPath = _DataFolder;
-                }
-            }
-        }
 
-        public UserStatisticModel SelectedStatistic
+        public UserStatistiс SelectedStatistic
         {
             get
             {
@@ -82,17 +65,25 @@ namespace Chart.Models
                 _SelectedStatistic = value;
                 if (SelectedStatistic != null)
                 {
-                    Plot();
+                    SendDataToChartModel();
+                    Series = new SeriesCollection
+                    {
+                        new LineSeries
+                        {
+                            Values = _chartModel.Points,
+                            Fill = Brushes.Transparent
+                        } 
+                    };
                     CompareStatics();
                 }
                 OnPropertyChanged("SelectedStatistic");
             }
         }
-        public List<UserStatisticModel> userStatistics
+        public List<UserStatistiс> userStatistics
         {
             get
             {
-                return _userStatistics;
+                return datasModel.AllStatistics;
             }
             set
             {
@@ -124,63 +115,54 @@ namespace Chart.Models
             {
                 return new RelayCommand((obj) =>
                 {
-                    Exporter.Export(dataContainer, SelectedStatistic, SelectedFormat);
-                    MessageBox.Show($"Экспорт завершен! \n Путь: {Exporter.LastExportFolder}");
+                    if (SelectedStatistic == null)
+                    {
+                        MessageBox.Show("Пользователь не выбран!");
+                        return;
+                    }
+                    if (datasModel.TryExportData(SelectedStatistic.name, SelectedFormat))
+                        MessageBox.Show($"Экспорт завершен! \n Путь: {datasModel.LastExportFolder}");
+                    else
+                        MessageBox.Show(datasModel.ErrorMessage);
                 });
             }
         }
         public RelayCommand ChangeDataFolder
         {
-            get 
+            get
             {
                 return new RelayCommand(obj =>
                 {
                     if (Directory.Exists(TextBoxPath))
-                        DataFolder = TextBoxPath;
-                });
+                    {
+                        if (!datasModel.TryLoadDatasFromFolder(TextBoxPath))
+                            MessageBox.Show(datasModel.ErrorMessage);
+                        else
+                            OnPropertyChanged("userStatistics");
                     }
+                    else
+                    {
+                        MessageBox.Show("Указанная папка не существует!");
+                    }
+                });
+            }
         }
         public MainWindowViewModel()
         {
-            DataFolder = Path.Combine(Directory.GetCurrentDirectory(), "Data");
+            //DataFolder = Path.Combine(Directory.GetCurrentDirectory(), "Data");
         }
-        private void LoadStatistics()
+        private void SendDataToChartModel()
         {
-            var groupedDatas = dataContainer.AllDatas.GroupBy(ud => ud.User);
-            List<UserStatisticModel> newUserStatistics = new List<UserStatisticModel>();
-            foreach (var g in groupedDatas)
-            {
-                var datas = g.Select(d => d).ToList();
-               newUserStatistics.Add(new UserStatisticModel(datas));
-            }
-            userStatistics = newUserStatistics;
-           SelectedStatistic = userStatistics.First();
-        }
-        private void Plot()
-        {
-            var currentUserDatas = dataContainer.AllDatas.Where(d => d.User == SelectedStatistic.name);
+            var currentUserDatas = datasModel.AllDatas.Where(d => d.User == SelectedStatistic.name);
             List<int> stepsAsPoints = new List<int>(currentUserDatas.Select(d => d.Steps));
             List<int> daysAsPoints = new List<int>();
             for (int i = 1; i < currentUserDatas.Count(); i++)
             {
                 daysAsPoints.Add(i);
             }
-
-            chart.SetData(daysAsPoints, stepsAsPoints);
-
-            ChartValues<ObservablePoint> points = new ChartValues<ObservablePoint>();
-            foreach (var point in chart.Points)
-            {
-                points.Add(new ObservablePoint(point.X, point.Y));
-            }
-
-            Series = new SeriesCollection {
-                new LineSeries
-                {
-                    Values = points,
-                    Fill = Brushes.Transparent
-                } };
+            _chartModel.SetData(daysAsPoints, stepsAsPoints);
         }
+
         private void CompareStatics()
         {
 

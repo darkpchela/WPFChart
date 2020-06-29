@@ -9,10 +9,10 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace Chart.Models
+namespace Chart.DataClasses
 {
     [Serializable]
-    public class UserStatisticModel : INotifyPropertyChanged
+    public class UserStatistiс : INotifyPropertyChanged
     {
         public string name { get; set; }
         public int midSteps { get; set; }
@@ -29,11 +29,11 @@ namespace Chart.Models
                 OnPropertyChanged("Status");
             }
         }
-        private UserStatisticModel()
+        private UserStatistiс()
         {
 
         }
-        public UserStatisticModel(IEnumerable<UserData> userData)
+        public UserStatistiс(IEnumerable<UserData> userData)
         {
             name = userData.First().User;
             midSteps = userData.Sum(d => d.Steps) / userData.Count();

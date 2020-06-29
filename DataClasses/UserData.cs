@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chart.Models
+namespace Chart.DataClasses
 {
     [Serializable]
     public class UserData
