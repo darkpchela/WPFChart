@@ -16,20 +16,24 @@ using System.IO;
 using System.Globalization;
 using System.Windows.Data;
 using Chart.DataClasses;
+using Chart.Models.ViewModels;
 
 namespace Chart.Models
 {
     class MainWindowViewModel : INotifyPropertyChanged
     {
         public List<string> ExportFormats { get; } =new List<string> {"json", "xml", "csv" };
-        private DatasModel datasModel = new DatasModel();
-        private ChartModel _chartModel = new ChartModel();
-        private List<UserStatistiс> _userStatistics = new List<UserStatistiс>();
+
+        private DatasModel datasModel;
+        private ChartModel chartModel;
+
+        private List<UserStatisticViewModel> _userStatistics;
+        private UserStatisticViewModel _SelectedStatistic;
         private SeriesCollection _series;
-        private UserStatistiс _SelectedStatistic;
-
-
+        private string _TextBoxPath;
         private string _SelectedFormat;
+
+
         public string SelectedFormat
         {
             get { return _SelectedFormat ?? "json"; }
@@ -39,11 +43,6 @@ namespace Chart.Models
                 OnPropertyChanged("SelectedFormat");
             }
         }
-        //public List<string> ExportFormats
-        //{
-        //    get { return _ExportFormats; }
-        //}
-        private string _TextBoxPath;
         public string TextBoxPath
         {
             get { return _TextBoxPath??datasModel.CurrentFolderPath; }
@@ -54,7 +53,7 @@ namespace Chart.Models
             }
         }
 
-        public UserStatistiс SelectedStatistic
+        public UserStatisticViewModel SelectedStatistic
         {
             get
             {
@@ -63,27 +62,24 @@ namespace Chart.Models
             set
             {
                 _SelectedStatistic = value;
-                if (SelectedStatistic != null)
-                {
-                    SendDataToChartModel();
-                    Series = new SeriesCollection
+                SendDataToChartModel();
+                Series = new SeriesCollection
                     {
                         new LineSeries
                         {
-                            Values = _chartModel.Points,
+                            Values = chartModel.Points,
                             Fill = Brushes.Transparent
-                        } 
+                        }
                     };
-                    CompareStatics();
-                }
+                CompareStatics();
                 OnPropertyChanged("SelectedStatistic");
             }
         }
-        public List<UserStatistiс> userStatistics
+        public List<UserStatisticViewModel> userStatistics
         {
             get
             {
-                return datasModel.AllStatistics;
+                return _userStatistics;
             }
             set
             {
@@ -104,11 +100,6 @@ namespace Chart.Models
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void OnPropertyChanged([CallerMemberName]string prop = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
-        }
         public RelayCommand Export
         {
             get
@@ -138,7 +129,14 @@ namespace Chart.Models
                         if (!datasModel.TryLoadDatasFromFolder(TextBoxPath))
                             MessageBox.Show(datasModel.ErrorMessage);
                         else
-                            OnPropertyChanged("userStatistics");
+                        {
+                            List<UserStatisticViewModel> newUserStatistics = new List<UserStatisticViewModel>();
+                            foreach (var stat in datasModel.AllStatistics)
+                            {
+                                newUserStatistics.Add(new UserStatisticViewModel(stat));
+                            }
+                            userStatistics = newUserStatistics;
+                        }
                     }
                     else
                     {
@@ -149,18 +147,25 @@ namespace Chart.Models
         }
         public MainWindowViewModel()
         {
-            //DataFolder = Path.Combine(Directory.GetCurrentDirectory(), "Data");
+            datasModel = new DatasModel();
+            chartModel = new ChartModel();
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void OnPropertyChanged([CallerMemberName]string prop = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }
         private void SendDataToChartModel()
         {
-            var currentUserDatas = datasModel.AllDatas.Where(d => d.User == SelectedStatistic.name);
+            string userName = SelectedStatistic.name;
+            var currentUserDatas = datasModel.AllDatas.Where(d => d.User == userName);
             List<int> stepsAsPoints = new List<int>(currentUserDatas.Select(d => d.Steps));
             List<int> daysAsPoints = new List<int>();
             for (int i = 1; i < currentUserDatas.Count(); i++)
             {
                 daysAsPoints.Add(i);
             }
-            _chartModel.SetData(daysAsPoints, stepsAsPoints);
+            chartModel.SetData(daysAsPoints, stepsAsPoints);
         }
 
         private void CompareStatics()
@@ -168,7 +173,6 @@ namespace Chart.Models
 
             int currentMidRes = SelectedStatistic.midSteps;
             int deltaRes = (int)(currentMidRes * 0.20);
-
             foreach (var stat in userStatistics)
             {
                 if (stat.midSteps < (currentMidRes - deltaRes))

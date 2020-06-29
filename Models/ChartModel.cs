@@ -11,26 +11,11 @@ using System.Windows;
 
 namespace Chart.Models
 {
-    class ChartModel: INotifyPropertyChanged
+    class ChartModel
     {
-        private ChartValues<ObservablePoint> _points;
         public IEnumerable<int> xPoints { get; private set; }
         public IEnumerable<int> yPoints { get; private set; }
-        public ChartValues<ObservablePoint> Points 
-        {
-            get { return (_points??new ChartValues<ObservablePoint>()); }
-            set 
-            {
-                _points = value;
-                OnPropertyChanged("Points");
-            } 
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void OnPropertyChanged([CallerMemberName]string prop = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
-        }
+        public ChartValues<ObservablePoint> Points { get; private set; }
         public void SetData(IEnumerable<int> xPoints, IEnumerable<int> yPoints)
         {
             this.xPoints = xPoints;

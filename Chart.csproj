@@ -104,7 +104,7 @@
     <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="Models\ChartModel.cs" />
     <Compile Include="Models\DatasModel.cs" />
-    <Compile Include="DataClasses\UserExportModel.cs" />
+    <Compile Include="Models\ViewModels\UserStatisticViewModel.cs" />
     <Compile Include="Models\ViewModels\MainWindowViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

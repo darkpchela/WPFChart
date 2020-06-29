@@ -32,7 +32,8 @@
                     </TextBlock>
                 </Button>
             </Grid>
-            <DataGrid Grid.Row="1" x:Name="userDataGrid"  SelectionMode="Single" IsReadOnly="True" ItemsSource="{Binding userStatistics}" SelectedItem="{Binding SelectedStatistic}" AutoGenerateColumns="False">
+            <DataGrid Grid.Row="1" x:Name="userDataGrid"  SelectionMode="Single" IsReadOnly="True" ItemsSource="{Binding userStatistics}"
+                      SelectedItem="{Binding SelectedStatistic}" AutoGenerateColumns="False">
                 <DataGrid.RowStyle>
                     <Style TargetType="{x:Type DataGridRow}">
                         <Style.Triggers>

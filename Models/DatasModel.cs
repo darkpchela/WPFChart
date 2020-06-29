@@ -15,21 +15,11 @@ namespace Chart.Models
 {
     public class DatasModel
     {
-        private List<UserData> _AllDatas;
-        private string _CurrentDirectoryFolder;
-        public string CurrentFolderPath
-        {
-            get { return _CurrentDirectoryFolder; }
-            set { _CurrentDirectoryFolder = value; }
-        }
-        public List<UserStatistiс> AllStatistics;
+        public string CurrentFolderPath { get; private set; }
         public string ErrorMessage { get; private set; }
         public string LastExportFolder { get; private set; }
-        public List<UserData> AllDatas
-        {
-            get { return (_AllDatas ?? new List<UserData>()); }
-            set { _AllDatas = value; }
-        }
+        public List<UserStatistiс> AllStatistics { get; set; }
+        public List<UserData> AllDatas { get; set; }
 
         public bool TryLoadDatasFromFolder(string path)
         {
