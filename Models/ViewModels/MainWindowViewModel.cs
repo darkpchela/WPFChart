@@ -1,24 +1,16 @@
 ﻿using LiveCharts;
 using LiveCharts.Defaults;
 using LiveCharts.Wpf;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
-using System.Windows.Input;
 using System.Windows;
 using Chart.Commands;
 using System.IO;
-using System.Globalization;
-using System.Windows.Data;
-using Chart.DataClasses;
 using Chart.Models.ViewModels;
 using LiveCharts.Configurations;
-
 namespace Chart.Models
 {
     class MainWindowViewModel : INotifyPropertyChanged
@@ -143,12 +135,17 @@ namespace Chart.Models
         {
             datasModel = new DatasModel();
             chartModel = new ChartModel();
+            TextBoxPath = "Сюда вводить путь к папке, потом нажимать на кнопку";
         }
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName]string prop = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }
+
+
+
+        //Just to make code prettier
         private void SendDataToChartModel()
         {
             string userName = SelectedStatistic.name;

@@ -17,17 +17,17 @@
         </Grid.ColumnDefinitions>
         <Grid x:Name="userGrid" Grid.Column="0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="0.05*"></RowDefinition>
-                <RowDefinition Height="0.85*"></RowDefinition>
+                <RowDefinition Height="0.10*"></RowDefinition>
+                <RowDefinition Height="0.80*"></RowDefinition>
                 <RowDefinition Height="0.10*"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="0.75*"></ColumnDefinition>
-                    <ColumnDefinition Width="0.25*"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0" Text="{Binding Path=TextBoxPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-                <Button  Grid.Column="1" FontSize="14" Command="{Binding ChangeDataFolder}" CommandParameter="{Binding TextBoxPath}">
+                <Grid.RowDefinitions>
+                    <RowDefinition ></RowDefinition>
+                    <RowDefinition ></RowDefinition>
+                </Grid.RowDefinitions>
+                <TextBox Grid.Row="0" Text="{Binding Path=TextBoxPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Stretch" TextWrapping="Wrap" ></TextBox>
+                <Button  Grid.Row="1" FontSize="14" Command="{Binding ChangeDataFolder}" CommandParameter="{Binding TextBoxPath}">
                     <TextBlock TextAlignment="Center" FontSize="12">Установить путь <LineBreak/> к папке
                     </TextBlock>
                 </Button>
